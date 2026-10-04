@@ -1,118 +1,66 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تست اتصال دیدار</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body style="font-family:Tahoma;padding:25px">
+<h2>تست سامانه دیدار</h2>
+<div id="status">در حال بررسی...</div>
+
 <script>
-const globalMsg=document.getElementById("globalMsg");
+(async function(){
 
-window.addEventListener("error",function(e){
-  globalMsg.textContent="خطای سامانه: "+(e.message||"خطای ناشناخته");
-});
+const box=document.getElementById("status");
 
-async function initApp(){
-  try{
-    if(typeof supabase==="undefined"){
-      globalMsg.textContent="کتابخانه اتصال به سامانه بارگذاری نشد.";
-      return;
-    }
+try{
 
-    const db=supabase.createClient(
-      "https://oufeyhofmkrexmfqctpi.supabase.co",
-      "sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc"
-    );
+box.innerHTML="مرحله ۱: کتابخانه Supabase...";
 
-    const params=new URLSearchParams(location.search);
-    const code=(params.get("code")||"").trim().toUpperCase();
-
-    if(!/^DID-\d{3}$/.test(code)){
-      globalMsg.textContent="کد کارمند در لینک QR معتبر نیست.";
-      return;
-    }
-
-    const setup=document.getElementById("setup");
-    const login=document.getElementById("login");
-    const result=document.getElementById("result");
-
-    const {data,error}=await db.rpc(
-      "employee_pin_status",
-      {p_employee_code:code}
-    );
-
-    if(error){
-      globalMsg.textContent="خطای اتصال به سامانه: "+error.message;
-      return;
-    }
-
-    globalMsg.textContent="";
-
-    if(data===false){
-      setup.classList.remove("hidden");
-    }else{
-      login.classList.remove("hidden");
-    }
-
-    document.getElementById("saveBtn").onclick=async function(){
-      const a=document.getElementById("pin1").value;
-      const b=document.getElementById("pin2").value;
-      const m=document.getElementById("setupMsg");
-
-      if(!/^\d{4}$/.test(a)){
-        m.textContent="PIN باید دقیقاً ۴ رقم باشد.";
-        return;
-      }
-
-      if(a!==b){
-        m.textContent="دو PIN یکسان نیستند.";
-        return;
-      }
-
-      const {data,error}=await db.rpc(
-        "set_employee_pin",
-        {p_employee_code:code,p_pin:a}
-      );
-
-      if(error||data!==true){
-        m.textContent="ثبت PIN انجام نشد: "+(error?.message||"خطای نامشخص");
-        return;
-      }
-
-      setup.classList.add("hidden");
-      login.classList.remove("hidden");
-      document.getElementById("loginMsg").textContent="PIN با موفقیت ثبت شد.";
-    };
-
-    document.getElementById("loginBtn").onclick=async function(){
-      const p=document.getElementById("pin").value;
-      const m=document.getElementById("loginMsg");
-
-      if(!/^\d{4}$/.test(p)){
-        m.textContent="PIN باید ۴ رقم باشد.";
-        return;
-      }
-
-      const {data,error}=await db.rpc(
-        "get_employee_status",
-        {p_employee_code:code,p_pin:p}
-      );
-
-      if(error||!data){
-        m.textContent="خطا: "+(error?.message||"PIN اشتباه است.");
-        return;
-      }
-
-      document.getElementById("name").textContent=data.full_name;
-      document.getElementById("code").textContent=data.code;
-      document.getElementById("credit").textContent=
-        Number(data.credit_amount||0).toLocaleString("fa-IR")+" تومان";
-      document.getElementById("spent").textContent=
-        Number(data.spent_amount||0).toLocaleString("fa-IR")+" تومان";
-      document.getElementById("remaining").textContent=
-        Number(data.remaining||0).toLocaleString("fa-IR")+" تومان";
-
-      login.classList.add("hidden");
-      result.classList.remove("hidden");
-    };
-
-  }catch(e){
-    globalMsg.textContent="خطای اجرای سامانه: "+e.message;
-  }
+if(typeof supabase==="undefined"){
+throw new Error("کتابخانه Supabase لود نشد");
 }
 
-initApp();
+box.innerHTML+="<br>✅ کتابخانه Supabase لود شد";
+
+const db=supabase.createClient(
+"https://oufeyhofmkrexmfqctpi.supabase.co",
+"sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc"
+);
+
+box.innerHTML+="<br>مرحله ۲: اتصال به Supabase...";
+
+const {data,error}=await db.rpc(
+"employee_pin_status",
+{p_employee_code:"DID-001"}
+);
+
+if(error){
+throw new Error(
+"RPC Error: "+error.message+
+" | code: "+(error.code||"")
+);
+}
+
+box.innerHTML+=
+"<br>✅ اتصال موفق است"+
+"<br>مرحله ۳: نتیجه DID-001 = "+
+String(data);
+
+}catch(e){
+
+box.innerHTML+=
+"<br><br>❌ خطا:<br><b>"+
+String(e.message||e)+
+"</b>";
+
+}
+
+})();
 </script>
+
+</body>
+</html>
