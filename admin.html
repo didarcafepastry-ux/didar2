@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>پنل مدیریت دیدار</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4efe5;color:#173f38;font-family:Tahoma,Arial,sans-serif}.wrap{max-width:1150px;margin:auto;padding:18px}.card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 6px 20px #0001}h1,h2{margin-top:0}.login{max-width:440px;margin:55px auto}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:#f7f3ea;border-radius:14px;padding:16px;text-align:center}.stat b{display:block;font-size:22px;margin-top:8px}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.btn{background:#176b5d;color:#fff;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font:inherit}.btn.alt{background:#eee;color:#173f38}.formgrid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.3fr auto;gap:10px}input,select{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:right}th{background:#f7f3ea}.msg{margin-top:10px;padding:10px;border-radius:10px}.err{color:#a33;background:#fff1f1}.ok{color:#176b5d;background:#eefaf6}.muted{color:#777;font-size:13px}.hidden{display:none}@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}}@media(max-width:520px){.grid,.formgrid{grid-template-columns:1fr}.wrap{padding:10px}.card{padding:14px}table{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="login" class="card login">
+<h1>پنل مدیریت دیدار</h1><p class="muted">مدیریت اعتبار و مصرف بن کارکنان ایساکو مکی</p>
+<input id="email" type="email" placeholder="ایمیل مدیر" autocomplete="username">
+<input id="password" type="password" placeholder="رمز عبور" autocomplete="current-password" style="margin-top:8px">
+<button class="btn" style="width:100%;margin-top:10px" onclick="login()">ورود</button>
+<div id="loginMsg"></div>
+</section>
+
+<section id="app" class="hidden">
+<div class="card"><div class="row"><div><h1>داشبورد مدیریت بن کارکنان</h1><div id="user" class="muted"></div></div><button class="btn alt" onclick="logout()">خروج</button></div></div>
+<div class="grid">
+<div class="stat">کارکنان فعال<b id="n">-</b></div>
+<div class="stat">اعتبار ماه جاری<b id="credit">-</b></div>
+<div class="stat">مصرف ماه جاری<b id="spent">-</b></div>
+<div class="stat">مانده اعتبار<b id="remaining">-</b></div>
+</div>
+
+<div class="card"><h2>کارکنان و اعتبار</h2><div style="overflow:auto"><table><thead><tr><th>نام</th><th>کد</th><th>اعتبار</th><th>مصرف</th><th>مانده</th></tr></thead><tbody id="employees"></tbody></table></div></div>
+
+<div class="card"><h2>ثبت مصرف جدید</h2><div class="formgrid">
+<select id="emp"></select><input id="amount" type="number" min="1" placeholder="مبلغ مصرف (تومان)"><input id="type" placeholder="نوع خرید"><input id="desc" class="wide" placeholder="توضیحات"><button class="btn" onclick="addTx()">ثبت مصرف</button>
+</div><div id="txMsg"></div></div>
+
+<div class="card"><div class="row"><h2>آخرین تراکنش‌ها</h2><button class="btn alt" onclick="loadAll()">به‌روزرسانی</button></div><div style="overflow:auto"><table><thead><tr><th>تاریخ</th><th>کارمند</th><th>مبلغ</th><th>نوع خرید</th><th>توضیحات</th></tr></thead><tbody id="transactions"></tbody></table></div></div>
+</section>
+</div>
+<script>
+const SUPABASE_URL='https://oufeyhofmkrexmfqctpi.supabase.co';
+const SUPABASE_KEY='sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const money=n=>Number(n||0).toLocaleString('fa-IR')+' تومان';
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+let employees=[];
+function msg(id,text,ok=false){const e=document.getElementById(id);e.className='msg '+(ok?'ok':'err');e.textContent=text}
+async function login(){
+ const email=document.getElementById('email').value.trim(), password=document.getElementById('password').value;
+ msg('loginMsg','در حال ورود…',true);
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error){msg('loginMsg','ورود ناموفق: '+error.message);return}
+ const {data:isAdmin,error:aerr}=await db.rpc('is_admin');
+ if(aerr||!isAdmin){await db.auth.signOut();msg('loginMsg','این حساب دسترسی مدیر ندارد.');return}
+ await showApp();
+}
+async function showApp(){
+ const {data:{user}}=await db.auth.getUser(); if(!user)return;
+ document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+ document.getElementById('user').textContent='ورود مدیر: '+(user.email||''); await loadAll();
+}
+async function logout(){await db.auth.signOut();location.reload()}
+async function loadAll(){
+ const d=await db.rpc('admin_dashboard');
+ if(d.error){msg('user','خطا در دریافت داشبورد: '+d.error.message);return}
+ employees=d.data?.employees||[];
+ const totalCredit=employees.reduce((a,x)=>a+Number(x.credit_amount||0),0), totalSpent=employees.reduce((a,x)=>a+Number(x.spent_amount||0),0);
+ document.getElementById('n').textContent=employees.length.toLocaleString('fa-IR');
+ document.getElementById('credit').textContent=money(totalCredit);document.getElementById('spent').textContent=money(totalSpent);document.getElementById('remaining').textContent=money(totalCredit-totalSpent);
+ document.getElementById('employees').innerHTML=employees.map(x=>`<tr><td>${esc(x.full_name)}</td><td dir="ltr">${esc(x.code)}</td><td>${money(x.credit_amount)}</td><td>${money(x.spent_amount)}</td><td>${money(Math.max(0,Number(x.remaining||0)))}</td></tr>`).join('')||'<tr><td colspan="5">کارمندی یافت نشد.</td></tr>';
+ const sel=document.getElementById('emp'); sel.innerHTML=employees.map(x=>`<option value="${x.id}">${esc(x.full_name)} — ${esc(x.code)} — مانده ${money(x.remaining)}</option>`).join('');
+ const t=await db.rpc('admin_transactions');
+ if(t.error){document.getElementById('transactions').innerHTML='<tr><td colspan="5">خطا در تراکنش‌ها</td></tr>';return}
+ document.getElementById('transactions').innerHTML=(t.data||[]).map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('fa-IR')}</td><td>${esc(x.full_name)}</td><td>${money(x.amount)}</td><td>${esc(x.purchase_type||'')}</td><td>${esc(x.description||'')}</td></tr>`).join('')||'<tr><td colspan="5">هنوز تراکنشی ثبت نشده است.</td></tr>';
+}
+async function addTx(){
+ const employeeId=Number(document.getElementById('emp').value), amount=Number(document.getElementById('amount').value), type=document.getElementById('type').value.trim(), desc=document.getElementById('desc').value.trim();
+ if(!employeeId||amount<=0||!type){msg('txMsg','کارمند، مبلغ و نوع خرید را کامل کنید.');return}
+ msg('txMsg','در حال ثبت…',true);
+ const {error}=await db.rpc('admin_add_transaction',{p_employee_id:employeeId,p_amount:amount,p_purchase_type:type,p_description:desc||null});
+ if(error){msg('txMsg','ثبت نشد: '+error.message);return}
+ document.getElementById('amount').value='';document.getElementById('type').value='';document.getElementById('desc').value='';msg('txMsg','مصرف با موفقیت ثبت شد.',true);await loadAll();
+}
+(async()=>{const {data:{session}}=await db.auth.getSession();if(session){const {data:isAdmin}=await db.rpc('is_admin');if(isAdmin)showApp();}})();
+</script>
+</body></html>
