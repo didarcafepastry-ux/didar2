@@ -5,42 +5,168 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>بن کارکنان ایساکو مکی</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f5f5f5;color:#222}
-.wrap{max-width:430px;margin:auto;padding:24px 16px}
-.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 25px #0001}
-h1{text-align:center;font-size:22px;margin:0 0 8px}
-h2{font-size:18px;margin:0 0 12px}
-.sub{text-align:center;color:#777;font-size:13px;margin-bottom:24px}
-label{display:block;font-size:13px;margin:12px 0 6px}
-input{width:100%;height:52px;border:1px solid #ddd;border-radius:12px;
-padding:0 14px;font-size:20px;text-align:center;letter-spacing:7px}
-button{width:100%;height:52px;border:0;border-radius:12px;background:#222;
-color:#fff;font-size:16px;margin-top:16px}
-button:disabled{opacity:.55}
-.msg{text-align:center;font-size:13px;min-height:20px;margin-top:14px}
-.err{color:#b00020}.ok{color:#087f3d}
-.info{background:#fafafa;border-radius:14px;padding:14px;margin-top:16px}
-.row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;
-padding:10px 0;font-size:14px}
-.row:last-child{border:0}
-.amount{font-size:20px;font-weight:bold}
-.small{text-align:center;font-size:12px;color:#777;margin-top:18px;line-height:1.8}
-.hidden{display:none}
+
+body{
+margin:0;
+font-family:Tahoma,Arial,sans-serif;
+background:#f5f5f5;
+color:#222
+}
+
+.wrap{
+max-width:430px;
+margin:auto;
+padding:24px 16px
+}
+
+.card{
+background:#fff;
+border-radius:20px;
+padding:24px;
+box-shadow:0 6px 25px #0001
+}
+
+h1{
+text-align:center;
+font-size:22px;
+margin:0 0 8px
+}
+
+h2{
+font-size:18px;
+margin:0 0 12px
+}
+
+.sub{
+text-align:center;
+color:#777;
+font-size:13px;
+margin-bottom:24px
+}
+
+label{
+display:block;
+font-size:13px;
+margin:12px 0 6px
+}
+
+input{
+width:100%;
+height:52px;
+border:1px solid #ddd;
+border-radius:12px;
+padding:0 14px;
+font-size:20px;
+text-align:center;
+letter-spacing:7px
+}
+
+button{
+width:100%;
+height:52px;
+border:0;
+border-radius:12px;
+background:#222;
+color:#fff;
+font-size:16px;
+margin-top:16px
+}
+
+button:disabled{
+opacity:.55
+}
+
+.msg{
+text-align:center;
+font-size:13px;
+min-height:20px;
+margin-top:14px
+}
+
+.err{
+color:#b00020
+}
+
+.ok{
+color:#087f3d
+}
+
+.info{
+background:#fafafa;
+border-radius:14px;
+padding:14px;
+margin-top:16px
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+border-bottom:1px solid #eee;
+padding:10px 0;
+font-size:14px
+}
+
+.row:last-child{
+border:0
+}
+
+.amount{
+font-size:20px;
+font-weight:bold
+}
+
+.managerBtn{
+display:block;
+text-align:center;
+text-decoration:none;
+background:#176b5d;
+color:#fff;
+padding:14px;
+border-radius:12px;
+margin-top:18px;
+font-size:15px;
+font-weight:bold
+}
+
+.managerBtn:active{
+opacity:.85
+}
+
+.small{
+text-align:center;
+font-size:12px;
+color:#777;
+margin-top:18px;
+line-height:1.8
+}
+
+.hidden{
+display:none
+}
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 <div class="card">
 
 <h1>بن کارکنان ایساکو مکی</h1>
-<div class="sub">سامانه اعتبار کارکنان کافه پیستری دیدار</div>
+
+<div class="sub">
+سامانه اعتبار کارکنان کافه پیستری دیدار
+</div>
 
 <section id="setup" class="hidden">
+
 <h2>انتخاب PIN شخصی</h2>
-<div class="sub">برای استفاده‌های بعدی یک PIN چهاررقمی انتخاب کنید.</div>
+
+<div class="sub">
+برای استفاده‌های بعدی یک PIN چهاررقمی انتخاب کنید.
+</div>
 
 <label>PIN چهاررقمی</label>
 <input id="pin1" inputmode="numeric" maxlength="4">
@@ -48,25 +174,41 @@ padding:10px 0;font-size:14px}
 <label>تکرار PIN</label>
 <input id="pin2" inputmode="numeric" maxlength="4">
 
-<button id="saveBtn">ثبت PIN</button>
+<button id="saveBtn">
+ثبت PIN
+</button>
+
 <div id="setupMsg" class="msg"></div>
+
 </section>
 
+
 <section id="login" class="hidden">
+
 <h2>ورود با PIN</h2>
-<div class="sub">PIN چهاررقمی خود را وارد کنید.</div>
+
+<div class="sub">
+PIN چهاررقمی خود را وارد کنید.
+</div>
 
 <label>PIN</label>
 <input id="pin" inputmode="numeric" maxlength="4">
 
-<button id="loginBtn">نمایش اعتبار</button>
+<button id="loginBtn">
+نمایش اعتبار
+</button>
+
 <div id="loginMsg" class="msg"></div>
+
 </section>
 
+
 <section id="result" class="hidden">
+
 <h2 id="name"></h2>
 
 <div class="info">
+
 <div class="row">
 <span>کد پرسنلی</span>
 <b id="code"></b>
@@ -86,156 +228,25 @@ padding:10px 0;font-size:14px}
 <span>مانده</span>
 <b class="amount" id="remaining"></b>
 </div>
+
 </div>
+
+<a
+id="managerBtn"
+class="managerBtn"
+href="#"
+>
+ورود مدیر برای ثبت خرید
+</a>
 
 <div class="small">
 اعتبار بر اساس اطلاعات سامانه نمایش داده می‌شود.
 </div>
+
 </section>
+
 
 <div id="globalMsg" class="msg err"></div>
 
 </div>
-</div>
-
-<script>
-(async function(){
-
-const globalMsg=document.getElementById("globalMsg");
-const setup=document.getElementById("setup");
-const login=document.getElementById("login");
-const result=document.getElementById("result");
-
-try{
-
-if(typeof supabase==="undefined"){
-throw new Error("کتابخانه اتصال به سامانه بارگذاری نشد.");
-}
-
-const db=supabase.createClient(
-"https://oufeyhofmkrexmfqctpi.supabase.co",
-"sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc"
-);
-
-const params=new URLSearchParams(location.search);
-const employeeCode=(params.get("code")||"").trim().toUpperCase();
-
-if(!/^DID-\d{3}$/.test(employeeCode)){
-globalMsg.textContent="کد کارمند در لینک QR معتبر نیست.";
-return;
-}
-
-const statusResult=await db.rpc(
-"employee_pin_status",
-{p_employee_code:employeeCode}
-);
-
-if(statusResult.error){
-throw statusResult.error;
-}
-
-if(statusResult.data===false){
-setup.classList.remove("hidden");
-}else{
-login.classList.remove("hidden");
-}
-
-document.getElementById("saveBtn").onclick=async function(){
-
-const a=document.getElementById("pin1").value;
-const b=document.getElementById("pin2").value;
-const msg=document.getElementById("setupMsg");
-
-if(!/^\d{4}$/.test(a)){
-msg.textContent="PIN باید دقیقاً ۴ رقم باشد.";
-return;
-}
-
-if(a!==b){
-msg.textContent="دو PIN یکسان نیستند.";
-return;
-}
-
-this.disabled=true;
-
-const r=await db.rpc(
-"set_employee_pin",
-{
-p_employee_code:employeeCode,
-p_pin:a
-}
-);
-
-this.disabled=false;
-
-if(r.error || r.data!==true){
-msg.textContent="ثبت PIN انجام نشد: "+
-(r.error?.message||"خطای نامشخص");
-return;
-}
-
-setup.classList.add("hidden");
-login.classList.remove("hidden");
-
-document.getElementById("loginMsg").textContent=
-"PIN با موفقیت ثبت شد.";
-};
-
-document.getElementById("loginBtn").onclick=async function(){
-
-const pin=document.getElementById("pin").value;
-const msg=document.getElementById("loginMsg");
-
-if(!/^\d{4}$/.test(pin)){
-msg.textContent="PIN باید ۴ رقم باشد.";
-return;
-}
-
-this.disabled=true;
-
-const r=await db.rpc(
-"get_employee_status",
-{
-p_employee_code:employeeCode,
-p_pin:pin
-}
-);
-
-this.disabled=false;
-
-if(r.error || !r.data){
-msg.textContent=
-r.error?.message||"PIN اشتباه است یا دسترسی موقتاً محدود شده.";
-return;
-}
-
-const data=r.data;
-
-document.getElementById("name").textContent=data.full_name;
-document.getElementById("code").textContent=data.code;
-
-document.getElementById("credit").textContent=
-Number(data.credit_amount||0).toLocaleString("fa-IR")+" تومان";
-
-document.getElementById("spent").textContent=
-Number(data.spent_amount||0).toLocaleString("fa-IR")+" تومان";
-
-document.getElementById("remaining").textContent=
-Number(data.remaining||0).toLocaleString("fa-IR")+" تومان";
-
-login.classList.add("hidden");
-result.classList.remove("hidden");
-};
-
-}catch(error){
-
-globalMsg.textContent=
-"خطای سامانه: "+(error.message||String(error));
-
-}
-
-})();
-</script>
-
-</body>
-</html>
+</
