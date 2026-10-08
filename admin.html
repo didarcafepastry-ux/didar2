@@ -1,231 +1,1220 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>پنل مدیریت دیدار</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>پنل مدیریت | کافه پیستری دیدار</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4efe5;color:#173f38;font-family:Tahoma,Arial,sans-serif}.wrap{max-width:1150px;margin:auto;padding:18px}.card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 6px 20px #0001}h1,h2{margin-top:0}.login{max-width:440px;margin:55px auto}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:#f7f3ea;border-radius:14px;padding:16px;text-align:center}.stat b{display:block;font-size:22px;margin-top:8px}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.btn{background:#176b5d;color:#fff;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font:inherit}.btn.alt{background:#eee;color:#173f38}.formgrid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.3fr auto;gap:10px}input,select{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:right}th{background:#f7f3ea}.msg{margin-top:10px;padding:10px;border-radius:10px}.err{color:#a33;background:#fff1f1}.ok{color:#176b5d;background:#eefaf6}.muted{color:#777;font-size:13px}.hidden{display:none}@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}}@media(max-width:520px){.grid,.formgrid{grid-template-columns:1fr}.wrap{padding:10px}.card{padding:14px}table{font-size:12px}}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Tahoma,Arial,sans-serif;
+  background:#f4f1ea;
+  color:#26352d;
+}
+.container{
+  max-width:1150px;
+  margin:auto;
+  padding:20px;
+}
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+h1,h2,h3{margin-top:0}
+h1{font-size:24px}
+h2{font-size:19px}
+label{
+  display:block;
+  margin:10px 0 6px;
+  font-weight:bold;
+}
+input,select,button,textarea{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccd4ce;
+  font-family:inherit;
+  font-size:14px;
+}
+button{
+  background:#315744;
+  color:white;
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+  margin-top:10px;
+}
+button:hover{opacity:.92}
+button.secondary{background:#6c7a72}
+button.danger{background:#9b3d35}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.stat{
+  background:#f5f7f4;
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+}
+.stat b{
+  display:block;
+  font-size:20px;
+  margin-top:7px;
+}
+.table-wrap{
+  overflow:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
+th,td{
+  padding:11px 8px;
+  border-bottom:1px solid #e4e7e4;
+  text-align:center;
+  white-space:nowrap;
+}
+th{
+  background:#eef2ee;
+}
+.message{
+  padding:12px;
+  border-radius:10px;
+  margin-top:10px;
+  display:none;
+}
+.success{
+  background:#e4f5e9;
+  color:#245b36;
+}
+.error{
+  background:#fae7e5;
+  color:#8a3029;
+}
+.hidden{display:none!important}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.small{
+  color:#68756d;
+  font-size:13px;
+}
+.actions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.money{font-weight:bold}
+@media(max-width:800px){
+  .grid,.stats,.actions{grid-template-columns:1fr}
+  .container{padding:12px}
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
-<section id="login" class="card login">
-<h1>پنل مدیریت دیدار</h1>
-<p class="muted">مدیریت اعتبار و مصرف بن کارکنان ایساکو مکی</p>
-<input id="email" type="email" placeholder="ایمیل مدیر" autocomplete="username">
-<input id="password" type="password" placeholder="رمز عبور" autocomplete="current-password" style="margin-top:8px">
-<button class="btn" style="width:100%;margin-top:10px" onclick="login()">ورود</button>
-<div id="loginMsg"></div>
-</section>
 
-<section id="app" class="hidden">
-<div class="card">
-<div class="row">
-<div><h1>داشبورد مدیریت بن کارکنان</h1><div id="user" class="muted"></div></div>
-<button class="btn alt" onclick="logout()">خروج</button>
-</div>
+<div class="container">
+
+  <!-- LOGIN -->
+  <section id="loginCard" class="card">
+    <h1>🔐 ورود مدیر</h1>
+    <p class="small">پنل مدیریت کافه پیستری دیدار</p>
+
+    <label>ایمیل</label>
+    <input id="email" type="email"
+           value="didar.cafepastry1@gmail.com"
+           autocomplete="username">
+
+    <label>رمز عبور</label>
+    <input id="password" type="password"
+           autocomplete="current-password">
+
+    <button onclick="login()">ورود به پنل</button>
+
+    <div id="loginMsg" class="message"></div>
+  </section>
+
+
+  <!-- PANEL -->
+  <section id="panel" class="hidden">
+
+    <div class="card topbar">
+      <div>
+        <h1>☕ پنل مدیریت دیدار</h1>
+        <div class="small">سامانه اعتبار کارکنان ایساکو مکی</div>
+      </div>
+      <button class="danger" onclick="logout()" style="width:auto;padding:10px 18px">
+        خروج
+      </button>
+    </div>
+
+
+    <!-- DASHBOARD -->
+    <div class="card">
+      <h2>📊 وضعیت کلی</h2>
+
+      <div class="stats">
+        <div class="stat">
+          کارکنان
+          <b id="employeeCount">۰</b>
+        </div>
+
+        <div class="stat">
+          اعتبار
+          <b id="totalCredit">۰</b>
+        </div>
+
+        <div class="stat">
+          مصرف‌شده
+          <b id="totalSpent">۰</b>
+        </div>
+
+        <div class="stat">
+          مانده
+          <b id="totalRemaining">۰</b>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MONTH MANAGEMENT -->
+    <div class="card">
+      <h2>📅 مدیریت ماه و اعتبار</h2>
+
+      <div class="grid">
+
+        <div>
+          <label>ماه</label>
+          <input id="month" type="month">
+
+          <button onclick="createMonth()">
+            ساخت ماه برای کارکنان فعال
+          </button>
+
+          <button class="secondary" onclick="showReport()">
+            نمایش گزارش ماه
+          </button>
+
+          <div id="monthMsg" class="message"></div>
+        </div>
+
+        <div>
+          <label>کارمند</label>
+          <select id="employeeSelect">
+            <option value="">انتخاب کارمند...</option>
+          </select>
+
+          <label>اعتبار ماهانه (تومان)</label>
+          <input id="creditAmount" type="number"
+                 min="0" step="50000"
+                 placeholder="مثلاً 2500000">
+
+          <button onclick="updateCredit()">
+            💳 ذخیره اعتبار
+          </button>
+
+          <div id="creditMsg" class="message"></div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- MONTH REPORT -->
+    <div id="reportCard" class="card hidden">
+
+      <h2>📈 گزارش ماهانه</h2>
+
+      <div class="stats">
+        <div class="stat">
+          کارکنان
+          <b id="reportEmployees">۰</b>
+        </div>
+
+        <div class="stat">
+          اعتبار
+          <b id="reportCredit">۰</b>
+        </div>
+
+        <div class="stat">
+          مصرف
+          <b id="reportSpent">۰</b>
+        </div>
+
+        <div class="stat">
+          مانده
+          <b id="reportRemaining">۰</b>
+        </div>
+      </div>
+
+      <br>
+
+      <h3>👥 وضعیت کارکنان</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ردیف</th>
+              <th>نام</th>
+              <th>کد</th>
+              <th>اعتبار</th>
+              <th>مصرف</th>
+              <th>مانده</th>
+            </tr>
+          </thead>
+          <tbody id="reportEmployeesTable"></tbody>
+        </table>
+      </div>
+
+      <br>
+
+      <h3>🧾 تراکنش‌های ماه</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>تاریخ</th>
+              <th>کارمند</th>
+              <th>کد</th>
+              <th>مبلغ</th>
+              <th>نوع</th>
+              <th>توضیحات</th>
+            </tr>
+          </thead>
+          <tbody id="reportTransactionsTable"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+
+    <!-- TRANSACTION -->
+    <div class="card">
+      <h2>🧾 ثبت مصرف جدید</h2>
+
+      <div class="grid">
+
+        <div>
+          <label>کارمند</label>
+          <select id="transactionEmployee">
+            <option value="">انتخاب کارمند...</option>
+          </select>
+        </div>
+
+        <div>
+          <label>مبلغ مصرف (تومان)</label>
+          <input id="transactionAmount"
+                 type="number"
+                 min="1"
+                 step="1000"
+                 placeholder="مثلاً 100000">
+        </div>
+
+        <div>
+          <label>نوع خرید</label>
+          <input id="purchaseType"
+                 placeholder="مثلاً قهوه، غذا، نوشیدنی">
+        </div>
+
+        <div>
+          <label>توضیحات</label>
+          <input id="description"
+                 placeholder="توضیحات اختیاری">
+        </div>
+
+      </div>
+
+      <button onclick="addTransaction()">
+        ثبت مصرف
+      </button>
+
+      <div id="transactionMsg" class="message"></div>
+    </div>
+
+
+    <!-- EMPLOYEES -->
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <h2>👥 کارکنان</h2>
+          <div class="small">اعتبار و مانده فعلی</div>
+        </div>
+
+        <button class="secondary"
+                onclick="loadDashboard()"
+                style="width:auto;padding:10px 18px">
+          🔄 بروزرسانی
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ردیف</th>
+              <th>نام</th>
+              <th>کد</th>
+              <th>اعتبار</th>
+              <th>مصرف</th>
+              <th>مانده</th>
+            </tr>
+          </thead>
+          <tbody id="employeesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- TRANSACTIONS -->
+    <div class="card">
+      <h2>📜 آخرین تراکنش‌ها</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>تاریخ</th>
+              <th>کارمند</th>
+              <th>کد</th>
+              <th>مبلغ</th>
+              <th>نوع</th>
+              <th>توضیحات</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
 </div>
 
-<div class="grid">
-<div class="stat">کارکنان فعال<b id="n">-</b></div>
-<div class="stat">اعتبار ماه جاری<b id="credit">-</b></div>
-<div class="stat">مصرف ماه جاری<b id="spent">-</b></div>
-<div class="stat">مانده اعتبار<b id="remaining">-</b></div>
-</div>
-
-<div class="card">
-<h2>کارکنان و اعتبار</h2>
-<div style="overflow:auto">
-<table>
-<thead><tr><th>نام</th><th>کد</th><th>اعتبار</th><th>مصرف</th><th>مانده</th></tr></thead>
-<tbody id="employees"></tbody>
-</table>
-</div>
-</div>
-
-<div class="card">
-<h2>ثبت مصرف جدید</h2>
-<div class="formgrid">
-<select id="emp"></select>
-<input id="amount" type="number" min="1" placeholder="مبلغ مصرف (تومان)">
-<input id="type" placeholder="نوع خرید">
-<input id="desc" class="wide" placeholder="توضیحات">
-<button class="btn" onclick="addTx()">ثبت مصرف</button>
-</div>
-<div id="txMsg"></div>
-</div>
-
-<div class="card">
-<div class="row">
-<h2>آخرین تراکنش‌ها</h2>
-<button class="btn alt" onclick="loadAll()">به‌روزرسانی</button>
-</div>
-<div style="overflow:auto">
-<table>
-<thead><tr><th>تاریخ</th><th>کارمند</th><th>مبلغ</th><th>نوع خرید</th><th>توضیحات</th></tr></thead>
-<tbody id="transactions"></tbody>
-</table>
-</div>
-</div>
-</section>
-</div>
 
 <script>
-const SUPABASE_URL='https://oufeyhofmkrexmfqctpi.supabase.co';
-const SUPABASE_KEY='sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc';
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL =
+  'https://oufeyhofmkrexmfqctpi.supabase.co';
 
-const money=n=>Number(n||0).toLocaleString('fa-IR')+' تومان';
-const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({
-'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'
-}[m]));
+const SUPABASE_KEY =
+  'sb_publishable_PXwUt-GlO1bOM-aefIPzVQ_LI5p1BJc';
 
-let employees=[];
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-function msg(id,text,ok=false){
-const e=document.getElementById(id);
-e.className='msg '+(ok?'ok':'err');
-e.textContent=text;
+let employees = [];
+
+
+/* ---------------- HELPERS ---------------- */
+
+function money(value){
+  return Number(value || 0).toLocaleString('fa-IR') + ' تومان';
 }
+
+function number(value){
+  return Number(value || 0).toLocaleString('fa-IR');
+}
+
+function showMsg(id,text,type='success'){
+  const el=document.getElementById(id);
+  el.textContent=text;
+  el.className='message '+type;
+  el.style.display='block';
+}
+
+function hideMsg(id){
+  const el=document.getElementById(id);
+  if(el) el.style.display='none';
+}
+
+function monthValue(){
+  const v=document.getElementById('month').value;
+  if(!v) return null;
+  return v+'-01';
+}
+
+function currentMonth(){
+  const d=new Date();
+  return d.getFullYear()+'-'+
+    String(d.getMonth()+1).padStart(2,'0');
+}
+
+
+/* ---------------- LOGIN ---------------- */
 
 async function login(){
-const email=document.getElementById('email').value.trim();
-const password=document.getElementById('password').value;
 
-msg('loginMsg','در حال ورود…',true);
+  hideMsg('loginMsg');
 
-const {data,error}=await db.auth.signInWithPassword({email,password});
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
 
-if(error){
-msg('loginMsg','ورود ناموفق: '+error.message);
-return;
+  if(!email || !password){
+    showMsg('loginMsg','ایمیل و رمز عبور را وارد کنید.','error');
+    return;
+  }
+
+  const {data,error}=await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    showMsg(
+      'loginMsg',
+      'ورود ناموفق: '+error.message,
+      'error'
+    );
+    return;
+  }
+
+  await checkAdmin();
 }
 
-const {data:isAdmin,error:aerr}=await db.rpc('is_admin');
 
-if(aerr||!isAdmin){
-await db.auth.signOut();
-msg('loginMsg','این حساب دسترسی مدیر ندارد.');
-return;
+async function checkAdmin(){
+
+  const {data,error}=await db.rpc('is_admin');
+
+  if(error || data!==true){
+
+    await db.auth.signOut();
+
+    showMsg(
+      'loginMsg',
+      'این حساب دسترسی مدیر ندارد.',
+      'error'
+    );
+
+    return;
+  }
+
+  document.getElementById('loginCard')
+    .classList.add('hidden');
+
+  document.getElementById('panel')
+    .classList.remove('hidden');
+
+  await loadDashboard();
+  await loadTransactions();
 }
 
-await showApp();
-}
-
-async function showApp(){
-const {data:{user}}=await db.auth.getUser();
-if(!user)return;
-
-document.getElementById('login').classList.add('hidden');
-document.getElementById('app').classList.remove('hidden');
-document.getElementById('user').textContent='ورود مدیر: '+(user.email||'');
-
-await loadAll();
-}
 
 async function logout(){
-await db.auth.signOut();
-location.reload();
+
+  await db.auth.signOut();
+
+  document.getElementById('panel')
+    .classList.add('hidden');
+
+  document.getElementById('loginCard')
+    .classList.remove('hidden');
+
+  document.getElementById('password').value='';
 }
 
-async function loadAll(){
-const d=await db.rpc('admin_dashboard');
 
-if(d.error){
-msg('user','خطا در دریافت داشبورد: '+d.error.message);
-return;
+/* ---------------- DASHBOARD ---------------- */
+
+async function loadDashboard(){
+
+  const {data,error}=await db.rpc('admin_dashboard');
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  console.log('admin_dashboard:',data);
+
+  let rows=[];
+
+  if(Array.isArray(data)){
+    rows=data;
+  }else if(data && Array.isArray(data.employees)){
+    rows=data.employees;
+  }else if(data && Array.isArray(data.rows)){
+    rows=data.rows;
+  }
+
+  employees=rows;
+
+  renderEmployees(rows);
+  fillEmployeeSelects(rows);
+
+  let totalCredit=0;
+  let totalSpent=0;
+  let totalRemaining=0;
+
+  rows.forEach(r=>{
+    totalCredit += Number(
+      r.credit_amount ??
+      r.credit ??
+      0
+    );
+
+    totalSpent += Number(
+      r.spent_amount ??
+      r.spent ??
+      0
+    );
+
+    totalRemaining += Number(
+      r.remaining ??
+      r.remaining_amount ??
+      0
+    );
+  });
+
+  document.getElementById('employeeCount')
+    .textContent=number(rows.length);
+
+  document.getElementById('totalCredit')
+    .textContent=money(totalCredit);
+
+  document.getElementById('totalSpent')
+    .textContent=money(totalSpent);
+
+  document.getElementById('totalRemaining')
+    .textContent=money(totalRemaining);
 }
 
-employees=d.data?.employees||[];
 
-const totalCredit=employees.reduce((a,x)=>a+Number(x.credit_amount||0),0);
-const totalSpent=employees.reduce((a,x)=>a+Number(x.spent_amount||0),0);
+function renderEmployees(rows){
 
-document.getElementById('n').textContent=employees.length.toLocaleString('fa-IR');
-document.getElementById('credit').textContent=money(totalCredit);
-document.getElementById('spent').textContent=money(totalSpent);
-document.getElementById('remaining').textContent=money(totalCredit-totalSpent);
+  const tbody=document.getElementById('employeesTable');
 
-document.getElementById('employees').innerHTML=
-employees.map(x=>`<tr>
-<td>${esc(x.full_name)}</td>
-<td dir="ltr">${esc(x.code)}</td>
-<td>${money(x.credit_amount)}</td>
-<td>${money(x.spent_amount)}</td>
-<td>${money(Math.max(0,Number(x.remaining||0)))}</td>
-</tr>`).join('')
-||'<tr><td colspan="5">کارمندی یافت نشد.</td></tr>';
+  tbody.innerHTML='';
 
-const sel=document.getElementById('emp');
+  if(!rows.length){
+    tbody.innerHTML=
+      '<tr><td colspan="6">اطلاعاتی وجود ندارد</td></tr>';
+    return;
+  }
 
-sel.innerHTML=employees.map(x=>`
-<option value="${x.id}">
-${esc(x.full_name)} — ${esc(x.code)} — مانده ${money(x.remaining)}
-</option>`).join('');
+  rows.forEach((r,i)=>{
 
-const t=await db.rpc('admin_transactions');
+    const name=
+      r.full_name ??
+      r.name ??
+      '-';
 
-if(t.error){
-document.getElementById('transactions').innerHTML=
-'<tr><td colspan="5">خطا در تراکنش‌ها</td></tr>';
-return;
+    const code=
+      r.employee_code ??
+      r.code ??
+      '-';
+
+    const credit=
+      r.credit_amount ??
+      r.credit ??
+      0;
+
+    const spent=
+      r.spent_amount ??
+      r.spent ??
+      0;
+
+    const remaining=
+      r.remaining ??
+      r.remaining_amount ??
+      (Number(credit)-Number(spent));
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${number(i+1)}</td>
+        <td>${escapeHtml(name)}</td>
+        <td>${escapeHtml(code)}</td>
+        <td class="money">${money(credit)}</td>
+        <td>${money(spent)}</td>
+        <td class="money">${money(remaining)}</td>
+      </tr>
+    `;
+  });
 }
 
-document.getElementById('transactions').innerHTML=
-(t.data||[]).map(x=>`<tr>
-<td>${new Date(x.created_at).toLocaleString('fa-IR')}</td>
-<td>${esc(x.full_name)}</td>
-<td>${money(x.amount)}</td>
-<td>${esc(x.purchase_type||'')}</td>
-<td>${esc(x.description||'')}</td>
-</tr>`).join('')
-||'<tr><td colspan="5">هنوز تراکنشی ثبت نشده است.</td></tr>';
+
+function fillEmployeeSelects(rows){
+
+  const selectors=[
+    document.getElementById('employeeSelect'),
+    document.getElementById('transactionEmployee')
+  ];
+
+  selectors.forEach(select=>{
+
+    if(!select) return;
+
+    select.innerHTML=
+      '<option value="">انتخاب کارمند...</option>';
+
+    rows.forEach(r=>{
+
+      const id=
+        r.employee_id ??
+        r.id;
+
+      const name=
+        r.full_name ??
+        r.name ??
+        '-';
+
+      const code=
+        r.employee_code ??
+        r.code ??
+        '-';
+
+      if(id){
+        select.innerHTML += `
+          <option value="${id}">
+            ${escapeHtml(name)} — ${escapeHtml(code)}
+          </option>
+        `;
+      }
+    });
+  });
 }
 
-async function addTx(){
-const employeeId=Number(document.getElementById('emp').value);
-const amount=Number(document.getElementById('amount').value);
-const type=document.getElementById('type').value.trim();
-const desc=document.getElementById('desc').value.trim();
 
-if(!employeeId||amount<=0||!type){
-msg('txMsg','کارمند، مبلغ و نوع خرید را کامل کنید.');
-return;
+/* ---------------- TRANSACTIONS ---------------- */
+
+async function addTransaction(){
+
+  hideMsg('transactionMsg');
+
+  const employeeId=
+    document.getElementById('transactionEmployee').value;
+
+  const amount=
+    Number(document.getElementById('transactionAmount').value);
+
+  const purchaseType=
+    document.getElementById('purchaseType').value.trim();
+
+  const description=
+    document.getElementById('description').value.trim();
+
+  if(!employeeId){
+    showMsg(
+      'transactionMsg',
+      'ابتدا کارمند را انتخاب کنید.',
+      'error'
+    );
+    return;
+  }
+
+  if(!amount || amount<=0){
+    showMsg(
+      'transactionMsg',
+      'مبلغ مصرف را وارد کنید.',
+      'error'
+    );
+    return;
+  }
+
+  const {error}=await db.rpc(
+    'admin_add_transaction',
+    {
+      p_employee_id:Number(employeeId),
+      p_amount:amount,
+      p_purchase_type:purchaseType || 'خرید',
+      p_description:description || null
+    }
+  );
+
+  if(error){
+
+    showMsg(
+      'transactionMsg',
+      'خطا در ثبت مصرف: '+error.message,
+      'error'
+    );
+
+    return;
+  }
+
+  showMsg(
+    'transactionMsg',
+    'مصرف با موفقیت ثبت شد.'
+  );
+
+  document.getElementById('transactionAmount').value='';
+  document.getElementById('purchaseType').value='';
+  document.getElementById('description').value='';
+
+  await loadDashboard();
+  await loadTransactions();
 }
 
-msg('txMsg','در حال ثبت…',true);
 
-const {error}=await db.rpc('admin_add_transaction',{
-p_employee_id:employeeId,
-p_amount:amount,
-p_purchase_type:type,
-p_description:desc||null
-});
+async function loadTransactions(){
 
-if(error){
-msg('txMsg','ثبت نشد: '+error.message);
-return;
+  const {data,error}=await db.rpc('admin_transactions');
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const rows=Array.isArray(data)
+    ? data
+    : [];
+
+  const tbody=
+    document.getElementById('transactionsTable');
+
+  tbody.innerHTML='';
+
+  if(!rows.length){
+
+    tbody.innerHTML=
+      '<tr><td colspan="6">هنوز تراکنشی ثبت نشده است.</td></tr>';
+
+    return;
+  }
+
+  rows.forEach(r=>{
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${formatDate(r.created_at)}</td>
+        <td>${escapeHtml(r.full_name ?? '-')}</td>
+        <td>${escapeHtml(r.employee_code ?? r.code ?? '-')}</td>
+        <td class="money">${money(r.amount)}</td>
+        <td>${escapeHtml(r.purchase_type ?? '-')}</td>
+        <td>${escapeHtml(r.description ?? '-')}</td>
+      </tr>
+    `;
+  });
 }
 
-document.getElementById('amount').value='';
-document.getElementById('type').value='';
-document.getElementById('desc').value='';
 
-msg('txMsg','مصرف با موفقیت ثبت شد.',true);
+/* ---------------- MONTH ---------------- */
 
-await loadAll();
+async function createMonth(){
+
+  hideMsg('monthMsg');
+
+  const month=monthValue();
+
+  if(!month){
+    showMsg(
+      'monthMsg',
+      'ابتدا ماه را انتخاب کنید.',
+      'error'
+    );
+    return;
+  }
+
+  const {data,error}=await db.rpc(
+    'admin_create_month',
+    {
+      p_month_start:month
+    }
+  );
+
+  if(error){
+
+    showMsg(
+      'monthMsg',
+      'خطا در ساخت ماه: '+error.message,
+      'error'
+    );
+
+    return;
+  }
+
+  const inserted=
+    data?.inserted_count ??
+    data?.inserted ??
+    0;
+
+  showMsg(
+    'monthMsg',
+    'ماه با موفقیت آماده شد. تعداد اعتبارهای ایجادشده: '+
+    number(inserted)
+  );
+
+  await loadDashboard();
 }
 
-(async()=>{
-const {data:{session}}=await db.auth.getSession();
 
-if(session){
-const {data:isAdmin}=await db.rpc('is_admin');
+async function updateCredit(){
 
-if(isAdmin)showApp();
+  hideMsg('creditMsg');
+
+  const employeeId=
+    document.getElementById('employeeSelect').value;
+
+  const amount=
+    Number(document.getElementById('creditAmount').value);
+
+  const month=monthValue();
+
+  if(!month){
+    showMsg(
+      'creditMsg',
+      'ابتدا ماه را انتخاب کنید.',
+      'error'
+    );
+    return;
+  }
+
+  if(!employeeId){
+    showMsg(
+      'creditMsg',
+      'کارمند را انتخاب کنید.',
+      'error'
+    );
+    return;
+  }
+
+  if(amount<0 || Number.isNaN(amount)){
+    showMsg(
+      'creditMsg',
+      'مبلغ اعتبار صحیح نیست.',
+      'error'
+    );
+    return;
+  }
+
+  const {data,error}=await db.rpc(
+    'admin_update_credit',
+    {
+      p_employee_id:Number(employeeId),
+      p_month_start:month,
+      p_credit_amount:amount
+    }
+  );
+
+  if(error){
+
+    showMsg(
+      'creditMsg',
+      'خطا در تغییر اعتبار: '+error.message,
+      'error'
+    );
+
+    return;
+  }
+
+  showMsg(
+    'creditMsg',
+    'اعتبار با موفقیت ذخیره شد.'
+  );
+
+  await loadDashboard();
+
+  const selected=
+    employees.find(e=>
+      Number(e.employee_id ?? e.id)===Number(employeeId)
+    );
+
+  if(selected){
+    document.getElementById('creditAmount').value=
+      selected.credit_amount ??
+      selected.credit ??
+      amount;
+  }
 }
-})();
+
+
+async function showReport(){
+
+  hideMsg('monthMsg');
+
+  const month=monthValue();
+
+  if(!month){
+    showMsg(
+      'monthMsg',
+      'ابتدا ماه را انتخاب کنید.',
+      'error'
+    );
+    return;
+  }
+
+  const {data,error}=await db.rpc(
+    'admin_month_report',
+    {
+      p_month_start:month
+    }
+  );
+
+  if(error){
+
+    showMsg(
+      'monthMsg',
+      'خطا در گزارش ماه: '+error.message,
+      'error'
+    );
+
+    return;
+  }
+
+  console.log('admin_month_report:',data);
+
+  renderReport(data);
+
+  document.getElementById('reportCard')
+    .classList.remove('hidden');
+
+  document.getElementById('reportCard')
+    .scrollIntoView({
+      behavior:'smooth',
+      block:'start'
+    });
+}
+
+
+function renderReport(data){
+
+  let summary=data?.summary ?? {};
+
+  let employeesRows=
+    data?.employees ??
+    data?.employee_rows ??
+    [];
+
+  let transactionRows=
+    data?.transactions ??
+    [];
+
+  if(Array.isArray(data)){
+    employeesRows=data;
+  }
+
+  const employeeCount=
+    summary.employees ??
+    summary.employee_count ??
+    employeesRows.length;
+
+  const credit=
+    summary.credit ??
+    summary.total_credit ??
+    employeesRows.reduce(
+      (s,r)=>s+Number(
+        r.credit_amount ??
+        r.credit ??
+        0
+      ),0
+    );
+
+  const spent=
+    summary.spent ??
+    summary.total_spent ??
+    employeesRows.reduce(
+      (s,r)=>s+Number(
+        r.spent_amount ??
+        r.spent ??
+        0
+      ),0
+    );
+
+  const remaining=
+    summary.remaining ??
+    summary.total_remaining ??
+    (Number(credit)-Number(spent));
+
+  document.getElementById('reportEmployees')
+    .textContent=number(employeeCount);
+
+  document.getElementById('reportCredit')
+    .textContent=money(credit);
+
+  document.getElementById('reportSpent')
+    .textContent=money(spent);
+
+  document.getElementById('reportRemaining')
+    .textContent=money(remaining);
+
+
+  const tbody=
+    document.getElementById('reportEmployeesTable');
+
+  tbody.innerHTML='';
+
+  if(!employeesRows.length){
+
+    tbody.innerHTML=
+      '<tr><td colspan="6">برای این ماه اطلاعاتی وجود ندارد.</td></tr>';
+
+  }else{
+
+    employeesRows.forEach((r,i)=>{
+
+      const name=
+        r.full_name ??
+        r.name ??
+        '-';
+
+      const code=
+        r.employee_code ??
+        r.code ??
+        '-';
+
+      const c=
+        r.credit_amount ??
+        r.credit ??
+        0;
+
+      const s=
+        r.spent_amount ??
+        r.spent ??
+        0;
+
+      const rem=
+        r.remaining ??
+        r.remaining_amount ??
+        (Number(c)-Number(s));
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${number(i+1)}</td>
+          <td>${escapeHtml(name)}</td>
+          <td>${escapeHtml(code)}</td>
+          <td>${money(c)}</td>
+          <td>${money(s)}</td>
+          <td>${money(rem)}</td>
+        </tr>
+      `;
+    });
+  }
+
+
+  const txBody=
+    document.getElementById('reportTransactionsTable');
+
+  txBody.innerHTML='';
+
+  if(!transactionRows.length){
+
+    txBody.innerHTML=
+      '<tr><td colspan="6">در این ماه تراکنشی ثبت نشده است.</td></tr>';
+
+  }else{
+
+    transactionRows.forEach(r=>{
+
+      txBody.innerHTML += `
+        <tr>
+          <td>${formatDate(r.created_at)}</td>
+          <td>${escapeHtml(r.full_name ?? '-')}</td>
+          <td>${escapeHtml(r.employee_code ?? r.code ?? '-')}</td>
+          <td>${money(r.amount)}</td>
+          <td>${escapeHtml(r.purchase_type ?? '-')}</td>
+          <td>${escapeHtml(r.description ?? '-')}</td>
+        </tr>
+      `;
+    });
+  }
+}
+
+
+/* ---------------- UTILITIES ---------------- */
+
+function formatDate(value){
+
+  if(!value) return '-';
+
+  try{
+    return new Date(value).toLocaleString(
+      'fa-IR',
+      {
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit'
+      }
+    );
+  }catch(e){
+    return value;
+  }
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+
+/* ---------------- EMPLOYEE SELECTION ---------------- */
+
+document.getElementById('employeeSelect')
+  .addEventListener('change',function(){
+
+    const id=Number(this.value);
+
+    const employee=
+      employees.find(e=>
+        Number(e.employee_id ?? e.id)===id
+      );
+
+    if(employee){
+
+      document.getElementById('creditAmount').value=
+        employee.credit_amount ??
+        employee.credit ??
+        '';
+    }
+  });
+
+
+/* ---------------- SESSION ---------------- */
+
+async function init(){
+
+  document.getElementById('month').value=
+    currentMonth();
+
+  const {data}=await db.auth.getSession();
+
+  if(data?.session){
+
+    const {data:isAdmin,error}=await db.rpc('is_admin');
+
+    if(!error && isAdmin===true){
+
+      document.getElementById('loginCard')
+        .classList.add('hidden');
+
+      document.getElementById('panel')
+        .classList.remove('hidden');
+
+      await loadDashboard();
+      await loadTransactions();
+    }
+  }
+}
+
+init();
 </script>
+
 </body>
 </html>
