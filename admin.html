@@ -492,7 +492,44 @@ async function login(){
   await checkAdmin();
 }
 
+async function login() {
+  hideMsg('loginMsg');
 
+  try {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      showMsg('loginMsg', 'ایمیل و رمز عبور را وارد کنید.', 'error');
+      return;
+    }
+
+    if (!db || !db.auth) {
+      showMsg('loginMsg', 'ارتباط با سامانه برقرار نشده است. صفحه را تازه‌سازی کنید.', 'error');
+      return;
+    }
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      showMsg('loginMsg', 'ورود ناموفق: ' + error.message, 'error');
+      return;
+    }
+
+    await checkAdmin();
+
+  } catch (error) {
+    console.error('Login error:', error);
+    showMsg(
+      'loginMsg',
+      'خطا هنگام ورود: ' + (error.message || 'خطای ناشناخته'),
+      'error'
+    );
+  }
+}
 async function checkAdmin(){
 
   const {data,error}=await db.rpc('is_admin');
