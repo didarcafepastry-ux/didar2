@@ -1324,7 +1324,26 @@ document.getElementById('employeeSelect')
 
 
 /* ---------------- SESSION ---------------- */
+const employeeSelect = document.getElementById('employeeSelect');
 
+if (employeeSelect) {
+  employeeSelect.addEventListener('change', function () {
+    const id = Number(this.value);
+
+    const employee = employees.find(e =>
+      Number(e.employee_id ?? e.id) === id
+    );
+
+    const creditAmount = document.getElementById('creditAmount');
+
+    if (employee && creditAmount) {
+      creditAmount.value =
+        employee.credit_amount ??
+        employee.credit ??
+        '';
+    }
+  });
+}
 async function init(){
 
   document.getElementById('month').value=
