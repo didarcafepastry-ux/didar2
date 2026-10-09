@@ -398,7 +398,8 @@ th{
               <th>کد</th>
               <th>مبلغ</th>
               <th>نوع</th>
-              <th>توضیحات</th>
+            <th>توضیحات</th>
+              <th>عملیات</th>
             </tr>
           </thead>
           <tbody id="transactionsTable"></tbody>
@@ -766,14 +767,113 @@ async function addTransaction(){
 }
 
 
+
 async function loadTransactions(){
-
   const {data,error}=await db.rpc('admin_transactions');
-
   if(error){
     console.error(error);
     return;
   }
+
+  const rows=Array.isArray(data)?data:[];
+  const tbody=document.getElementById('transactionsTable');
+  tbody.innerHTML='';
+
+  if(!rows.length){
+    tbody.innerHTML=
+      '<tr><td colspan="7">هنوز تراکنشی ثبت نشده است.</td></tr>';
+    return;
+  }
+
+  rows.forEach(r=>{
+    const id=Number(r.id);
+    const voided=(r.purchase_type==='ابطال‌شده');
+
+    tbody.innerHTML+=`
+      <tr>
+        <td>${formatDate(r.created_at)}</td>
+        <td>${escapeHtml(r.full_name ?? '-')}</td>
+        <td>${escapeHtml(r.employee_code ?? r.code ?? '-')}</td>
+        <td class="money">${money(r.amount)}</td>
+        <td>${escapeHtml(r.purchase_type ?? '-')}</td>
+        <td>${escapeHtml(r.description ?? '-')}</td>
+        <td>
+          ${voided?'باطل‌شده':`
+            <button type="button" onclick="editTransaction(${id})">اصلاح</button>
+            <button type="button" onclick="voidTransaction(${id})">ابطال</button>
+          `}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+async function editTransaction(id){
+  const amountText=prompt('مبلغ صحیح تراکنش به تومان را وارد کنید:');
+  if(amountText===null)return;
+
+  const amount=Number(amountText);
+  if(!Number.isSafeInteger(amount)||amount<=0){
+    alert('مبلغ باید عدد صحیح و بیشتر از صفر باشد.');
+    return;
+  }
+
+  const purchaseType=prompt('نوع خرید جدید را وارد کنید:');
+  if(purchaseType===null||!purchaseType.trim())return;
+
+  const description=prompt('شرح جدید تراکنش را وارد کنید:');
+  if(description===null)return;
+
+  const reason=prompt('دلیل اصلاح را وارد کنید (اجباری):');
+  if(reason===null||!reason.trim()){
+    alert('ثبت دلیل اصلاح الزامی است.');
+    return;
+  }
+
+  if(!confirm('اصلاح تراکنش با مبلغ '+amount.toLocaleString('fa-IR')+' تومان انجام شود؟'))return;
+
+  const {error}=await db.rpc('admin_edit_transaction',{
+    p_transaction_id:id,
+    p_amount:amount,
+    p_purchase_type:purchaseType.trim(),
+    p_description:description.trim(),
+    p_reason:reason.trim()
+  });
+
+  if(error){
+    alert('اصلاح انجام نشد: '+error.message);
+    return;
+  }
+
+  alert('تراکنش اصلاح شد.');
+  await loadDashboard();
+  await loadTransactions();
+}
+
+async function voidTransaction(id){
+  if(!confirm('آیا از ابطال این تراکنش مطمئن هستید؟'))return;
+
+  const reason=prompt('دلیل ابطال را وارد کنید (اجباری):');
+  if(reason===null||!reason.trim()){
+    alert('ثبت دلیل ابطال الزامی است.');
+    return;
+  }
+
+  const {error}=await db.rpc('admin_void_transaction',{
+    p_transaction_id:id,
+    p_reason:reason.trim()
+  });
+
+  if(error){
+    alert('ابطال انجام نشد: '+error.message);
+    return;
+  }
+
+  alert('تراکنش با موفقیت باطل شد.');
+  await loadDashboard();
+  await loadTransactions();
+}
+
 
   const rows=Array.isArray(data)
     ? data
