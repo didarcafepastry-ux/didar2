@@ -9,6 +9,14 @@
 *{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f4f1ea;color:#26352d}.container{max-width:1150px;margin:auto;padding:16px}.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 5px 20px #0000000d}h1{font-size:23px}h2{font-size:19px}label{display:block;margin:10px 0 6px;font-weight:bold}input,select,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccd4ce;font:inherit}button{background:#315744;color:#fff;border:0;cursor:pointer;font-weight:bold;margin-top:10px}button.secondary{background:#6c7a72}button.danger{background:#9b3d35}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{background:#f5f7f4;border-radius:12px;padding:14px;text-align:center;overflow-wrap:anywhere}.stat b{display:block;font-size:18px;margin-top:8px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:10px 8px;border-bottom:1px solid #e4e7e4;text-align:center;white-space:nowrap}th{background:#eef2ee}.message{padding:12px;border-radius:9px;margin-top:10px;display:none;white-space:pre-wrap;overflow-wrap:anywhere}.success{background:#e4f5e9;color:#245b36}.error{background:#fae7e5;color:#8a3029}.hidden{display:none!important}.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}.small{color:#68756d;font-size:13px}.money{font-weight:bold}.inline-button{width:auto;padding:7px 10px;margin:2px;font-size:12px}@media(max-width:760px){.grid,.stats{grid-template-columns:1fr}.container{padding:10px}.topbar{align-items:flex-start}}
 </style>
 </head>
+  <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(error => console.error('Service Worker:', error));
+  });
+}
+</script>
 <body><div class="container">
 <section id="loginCard" class="card"><h1>🔐 ورود مدیر</h1><p class="small">پنل مدیریت کافه پیستری دیدار</p><label for="email">ایمیل</label><input id="email" type="email" value="didar.cafepastry1@gmail.com" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"><button id="loginButton" type="button">ورود به پنل</button><div id="loginMsg" class="message"></div></section>
 <section id="panel" class="hidden">
